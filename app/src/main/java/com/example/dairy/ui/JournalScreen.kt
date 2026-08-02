@@ -30,15 +30,6 @@ fun JournalScreen() {
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = stringResource(R.string.journal_today),
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-        }
-
-        item {
             CalendarCard()
         }
 

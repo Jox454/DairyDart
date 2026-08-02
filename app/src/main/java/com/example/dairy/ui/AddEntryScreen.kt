@@ -23,18 +23,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.dairy.R
+import com.example.dairy.model.MoodEntry
 import com.example.dairy.ui.theme.MDBackground
 import com.example.dairy.ui.theme.MDGlassBackground
 import com.example.dairy.ui.theme.MDPrimary
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.UUID
 
 @Composable
-fun AddEntryScreen(onBackClick: () -> Unit) {
-    var noteText by remember { mutableStateOf("") }
-    var selectedMood by remember { mutableStateOf<String?>(null) }
-    val selectedActivities = remember { mutableStateListOf<String>() }
+fun AddEntryScreen(
+    initialEntry: MoodEntry? = null,
+    onBackClick: () -> Unit, 
+    onSaveEntry: (MoodEntry) -> Unit
+) {
+    var noteText by remember { mutableStateOf(initialEntry?.note ?: "") }
+    var selectedMood by remember { mutableStateOf(initialEntry?.moodId) }
+    val selectedActivities = remember { 
+        mutableStateListOf<String>().apply {
+            initialEntry?.activities?.let { addAll(it) }
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -165,7 +178,31 @@ fun AddEntryScreen(onBackClick: () -> Unit) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.clickable { /* Handle Save */ }
+                        modifier = Modifier.clickable { 
+                            if (selectedMood != null) {
+                                val now = LocalDateTime.now()
+                                val dateFormatter = DateTimeFormatter.ofPattern("MMMM d")
+                                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                                
+                                val entry = MoodEntry(
+                                    id = initialEntry?.id ?: UUID.randomUUID().toString(),
+                                    moodTitle = when(selectedMood) {
+                                        "super" -> "Super"
+                                        "good" -> "Good"
+                                        "neutral" -> "Neutral"
+                                        "bad" -> "Bad"
+                                        "awful" -> "Awful"
+                                        else -> "Neutral"
+                                    },
+                                    moodId = selectedMood!!,
+                                    date = initialEntry?.date ?: now.format(dateFormatter),
+                                    time = initialEntry?.time ?: now.format(timeFormatter),
+                                    note = noteText,
+                                    activities = selectedActivities.toList()
+                                )
+                                onSaveEntry(entry)
+                            }
+                        }
                     ) {
                         Surface(
                             modifier = Modifier.size(64.dp),

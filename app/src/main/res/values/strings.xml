@@ -73,4 +73,6 @@
     <string name="btn_take_photo">Take a photo</string>
     <string name="btn_from_gallery">From gallery</string>
     <string name="btn_save">SAVE</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_delete">Delete</string>
 </resources>

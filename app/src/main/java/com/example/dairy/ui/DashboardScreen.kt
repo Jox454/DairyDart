@@ -21,12 +21,18 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.dairy.R
+import com.example.dairy.model.MoodEntry
 import com.example.dairy.ui.theme.MDBackground
 import com.example.dairy.ui.theme.MDPrimary
 import com.example.dairy.ui.theme.MDSurfaceContainer
 
 @Composable
-fun DashboardScreen(onAddClick: () -> Unit) {
+fun DashboardScreen(
+    onAddClick: () -> Unit, 
+    entries: List<MoodEntry>,
+    onEditClick: (MoodEntry) -> Unit,
+    onDeleteClick: (MoodEntry) -> Unit
+) {
     var currentTab by rememberSaveable { mutableStateOf("mood") }
 
     Box(
@@ -65,7 +71,11 @@ fun DashboardScreen(onAddClick: () -> Unit) {
         ) { innerPadding ->
             Box(modifier = Modifier.padding(innerPadding)) {
                 when (currentTab) {
-                    "mood" -> MoodScreen()
+                    "mood" -> MoodScreen(
+                        entries = entries,
+                        onEditClick = onEditClick,
+                        onDeleteClick = onDeleteClick
+                    )
                     "stats" -> StatsScreen()
                     "journal" -> JournalScreen()
                     "profile" -> ProfileScreen()

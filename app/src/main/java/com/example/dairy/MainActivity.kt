@@ -8,7 +8,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.example.dairy.model.MoodEntry
 import com.example.dairy.ui.AddEntryScreen
 import com.example.dairy.ui.DashboardScreen
 import com.example.dairy.ui.OnboardingScreen
@@ -32,16 +35,70 @@ class MainActivity : ComponentActivity() {
         setContent {
             DairyTheme(dynamicColor = false) {
                 var currentScreen by rememberSaveable { mutableStateOf("onboarding") }
+                var editingEntry by remember { mutableStateOf<MoodEntry?>(null) }
+                
+                val moodEntries = remember { 
+                    mutableStateListOf(
+                        MoodEntry(
+                            id = "1",
+                            moodTitle = "Neutral",
+                            moodId = "neutral",
+                            date = "August 2",
+                            time = "16:58",
+                            note = "The day went calmly, but I feel a bit tired.",
+                            activities = emptyList()
+                        ),
+                        MoodEntry(
+                            id = "2",
+                            moodTitle = "Good",
+                            moodId = "good",
+                            date = "August 1",
+                            time = "14:20",
+                            note = "Spent some time reading a book. Felt very peaceful.",
+                            activities = emptyList()
+                        )
+                    )
+                }
 
                 when (currentScreen) {
                     "onboarding" -> {
                         OnboardingScreen(onGetStartedClick = { currentScreen = "dashboard" })
                     }
                     "dashboard" -> {
-                        DashboardScreen(onAddClick = { currentScreen = "add_entry" })
+                        DashboardScreen(
+                            onAddClick = { 
+                                editingEntry = null
+                                currentScreen = "add_entry" 
+                            },
+                            entries = moodEntries,
+                            onEditClick = { entry ->
+                                editingEntry = entry
+                                currentScreen = "add_entry"
+                            },
+                            onDeleteClick = { entry ->
+                                moodEntries.remove(entry)
+                            }
+                        )
                     }
                     "add_entry" -> {
-                        AddEntryScreen(onBackClick = { currentScreen = "dashboard" })
+                        AddEntryScreen(
+                            initialEntry = editingEntry,
+                            onBackClick = { currentScreen = "dashboard" },
+                            onSaveEntry = { entry ->
+                                if (editingEntry != null) {
+                                    // Update existing entry
+                                    val index = moodEntries.indexOfFirst { it.id == entry.id }
+                                    if (index != -1) {
+                                        moodEntries[index] = entry
+                                    }
+                                } else {
+                                    // Add new entry
+                                    moodEntries.add(0, entry)
+                                }
+                                currentScreen = "dashboard"
+                                editingEntry = null
+                            }
+                        )
                     }
                 }
             }
