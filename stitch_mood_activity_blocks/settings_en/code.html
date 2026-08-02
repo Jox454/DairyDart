@@ -1,0 +1,267 @@
+<!DOCTYPE html><html class="dark" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>MindDiary Profile</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<style>
+        .glass-card {
+            background: rgba(31, 41, 55, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .premium-gradient {
+            background: linear-gradient(135deg, #a078ff 0%, #0566d9 100%);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #091421;
+            color: #d9e3f6;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#d0bcff",
+                        "tertiary": "#ffafd3",
+                        "surface-bright": "#303a48",
+                        "on-primary": "#3c0091",
+                        "on-tertiary-fixed-variant": "#85145a",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "tertiary-fixed": "#ffd8e7",
+                        "surface-container-low": "#121c2a",
+                        "primary-container": "#a078ff",
+                        "secondary": "#adc6ff",
+                        "outline": "#958ea0",
+                        "surface-variant": "#2b3544",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-dim": "#091421",
+                        "on-primary-fixed": "#23005c",
+                        "background": "#091421",
+                        "on-error": "#690005",
+                        "tertiary-container": "#e364a7",
+                        "surface-tint": "#d0bcff",
+                        "outline-variant": "#494454",
+                        "surface-container-high": "#212b39",
+                        "primary-fixed-dim": "#d0bcff",
+                        "primary-fixed": "#e9ddff",
+                        "surface": "#091421",
+                        "secondary-fixed": "#d8e2ff",
+                        "inverse-on-surface": "#27313f",
+                        "on-secondary": "#002e6a",
+                        "error-container": "#93000a",
+                        "surface-container": "#16202e",
+                        "secondary-container": "#0566d9",
+                        "inverse-surface": "#d9e3f6",
+                        "on-primary-container": "#340080",
+                        "on-surface": "#d9e3f6",
+                        "surface-container-highest": "#2b3544",
+                        "on-secondary-container": "#e6ecff",
+                        "inverse-primary": "#6d3bd7",
+                        "on-error-container": "#ffdad6",
+                        "on-surface-variant": "#cbc3d7",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-tertiary-fixed": "#3d0026",
+                        "on-primary-fixed-variant": "#5516be",
+                        "tertiary-fixed-dim": "#ffafd3",
+                        "on-tertiary-container": "#560038",
+                        "on-background": "#d9e3f6",
+                        "surface-container-lowest": "#050f1c",
+                        "on-tertiary": "#620040"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Manrope"],
+                        "body-lg": ["Manrope"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Manrope"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "label-md": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="font-body-md text-on-surface">
+<!-- Top App Bar -->
+<header class="fixed top-0 w-full z-50 bg-background/80 dark:bg-background/80 backdrop-blur-md flex justify-between items-center px-margin-mobile h-16 w-full">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="calendar_month">calendar_month</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-primary font-bold">MindDiary</h1>
+<button class="active:scale-95 transition-transform hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="settings">settings</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-20 px-margin-mobile max-w-lg mx-auto pb-4">
+<!-- Profile Header Section -->
+<section class="flex flex-col items-center mb-lg">
+<div class="relative w-24 h-24 mb-md">
+<div class="w-full h-full rounded-full border-4 border-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional studio portrait of a calm woman with a gentle smile, soft cinematic lighting illuminating her face against a dark, moody charcoal background. The aesthetic is clean, modern, and high-end corporate, with vibrant purple color grading that matches a mental health application's premium identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYCIgQB4AuFw-FmwRmT9lKxAaTbqZailPOh0ySDE5RZO_8jfxuxwantzMduXxo6FqPx84dupNWX3dnIH9k9mMbEOoUusqcbc61parGIJ4ecvOgLV4zWNI5ADNYmOoQqBqr7DjRZn3ACRjQPMV_Sb-emE-3VK0VeZcvCQA887CHLVWZUT0Sz1d1ABgBRQ6wI4WZAwrka24PIZVTG51hdeThNMHLRvsRYa8I6O2SBOd5-XecKGusmHA">
+</div>
+<div class="absolute bottom-0 right-0 bg-primary-container text-on-primary-container p-1 rounded-full shadow-lg border-2 border-background">
+<span class="material-symbols-outlined text-sm" data-icon="edit">edit</span>
+</div>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Alex Johnson</h2>
+<p class="font-label-md text-label-md text-on-surface-variant">Inner Peace Seeker</p>
+</section>
+<!-- Stats Bento Row -->
+<div class="grid grid-cols-2 gap-sm mb-lg">
+
+<div class="glass-card p-md rounded-xl flex flex-col gap-xs">
+
+
+</div>
+</div>
+<!-- Menu Items -->
+<div class="space-y-2 mb-lg">
+<!-- Goals -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="ads_click">ads_click</span>
+</div>
+<span class="font-label-md text-label-md">Goals</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Weekly Reports -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" data-icon="data_thresholding">data_thresholding</span>
+</div>
+<span class="font-label-md text-label-md">Weekly Reports</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Important Days -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-tertiary" data-icon="event_note">event_note</span>
+</div>
+<span class="font-label-md text-label-md">Important Days</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Photo Gallery -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface" data-icon="photo_library">photo_library</span>
+</div>
+<span class="font-label-md text-label-md">Photo Gallery</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Achievements -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-yellow-500" data-icon="military_tech">military_tech</span>
+</div>
+<span class="font-label-md text-label-md">Achievements</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Reminders (Toggle) -->
+<div class="w-full flex items-center justify-between p-4 glass-card rounded-xl">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary-container" data-icon="notifications_active">notifications_active</span>
+</div>
+<span class="font-label-md text-label-md">Reminders</span>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox">
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+<!-- Edit Moods -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="sentiment_satisfied">sentiment_satisfied</span>
+</div>
+<span class="font-label-md text-label-md">Edit Moods</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Edit Activities -->
+<button class="w-full flex items-center justify-between p-4 glass-card rounded-xl active:scale-[0.98] transition-transform">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="fitness_center">fitness_center</span>
+</div>
+<span class="font-label-md text-label-md">Edit Activities</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Premium Banner -->
+<div class="premium-gradient p-6 rounded-2xl shadow-lg relative overflow-hidden group active:scale-95 transition-transform mb-md">
+<div class="relative z-10 flex flex-col gap-xs">
+<h3 class="font-headline-lg-mobile text-headline-lg-mobile text-white">Go Premium</h3>
+<p class="text-sm text-white/90 max-w-[200px]">Unlock detailed insights, unlimited moods, and cloud backup.</p>
+<button class="mt-xs bg-white text-primary-container font-bold px-4 py-2 rounded-lg text-sm self-start shadow-md hover:bg-white/90 transition-colors">Upgrade Now</button>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-9xl text-white/10 rotate-12 group-hover:scale-110 transition-transform" data-icon="workspace_premium" style="font-variation-settings: &quot;FILL&quot; 1;">workspace_premium</span>
+</div>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-4 pt-2 bg-surface-container/80 dark:bg-surface-container/80 backdrop-blur-md rounded-t-xl shadow-lg"><button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">mood</span>
+<span class="font-label-md text-label-md">Mood</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">bar_chart</span>
+<span class="font-label-md text-label-md">Stats</span>
+</button><button class="flex items-center justify-center w-14 h-14 bg-primary text-on-primary rounded-full fab-glow active:scale-90 transition-transform -mt-8 border-4 border-surface-container">
+  <span class="material-symbols-outlined text-[32px]">add</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-colors active:scale-90 transition-transform">
+<span class="material-symbols-outlined">edit_note</span>
+<span class="font-label-md text-label-md">Journal</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 active:scale-90 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-md text-label-md">Profile</span>
+</button></nav>
+<script>
+        // Simple micro-interaction for list items
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Flash effect
+                card.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                setTimeout(() => {
+                    card.style.backgroundColor = '';
+                }, 200);
+            });
+        });
+    </script>
+
+
+</body></html>
