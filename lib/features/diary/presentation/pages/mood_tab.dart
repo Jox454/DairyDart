@@ -4,6 +4,7 @@ import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../widgets/glass_card.dart';
 import '../../../../core/theme/app_colors.dart';
+import 'add_entry_page.dart';
 
 class MoodTab extends StatelessWidget {
   const MoodTab({super.key});
@@ -16,7 +17,7 @@ class MoodTab extends StatelessWidget {
           return const Center(child: CircularProgressIndicator());
         } else if (state is DiaryLoaded) {
           return ListView.separated(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
             itemCount: state.entries.length + 1, // +1 for the header
             separatorBuilder: (_, __) => const SizedBox(height: 24),
             itemBuilder: (context, index) {
@@ -112,6 +113,10 @@ class MoodEntryCard extends StatelessWidget {
             onSelected: (value) {
               if (value == 'delete') {
                 context.read<DiaryCubit>().deleteEntry(entry.id);
+              } else if (value == 'edit') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => AddEntryPage(existingEntry: entry)),
+                );
               }
             },
             itemBuilder: (context) => [

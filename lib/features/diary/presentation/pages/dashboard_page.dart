@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'mood_tab.dart';
+import 'journal_tab.dart';
+import 'profile_tab.dart';
+import 'stats_tab.dart';
 import '../../../../core/theme/app_colors.dart';
 import 'add_entry_page.dart';
 
@@ -74,11 +77,11 @@ class _DashboardPageState extends State<DashboardPage> {
       case "mood":
         return const MoodTab();
       case "journal":
-        return const Center(child: Text("Journal Tab (Calendar)"));
+        return const JournalTab();
       case "stats":
-        return const Center(child: Text("Stats Tab"));
+        return const StatsTab();
       case "profile":
-        return const Center(child: Text("Profile Tab"));
+        return const ProfileTab();
       default:
         return const MoodTab();
     }

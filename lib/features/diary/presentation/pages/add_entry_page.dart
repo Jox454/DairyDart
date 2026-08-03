@@ -8,7 +8,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../widgets/glass_card.dart';
 
 class AddEntryPage extends StatefulWidget {
-  const AddEntryPage({super.key});
+  final MoodEntryEntity? existingEntry;
+  const AddEntryPage({super.key, this.existingEntry});
 
   @override
   State<AddEntryPage> createState() => _AddEntryPageState();
@@ -17,7 +18,23 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   String? _selectedMoodId;
   final List<String> _selectedActivities = [];
-  final TextEditingController _noteController = TextEditingController();
+  late TextEditingController _noteController;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedMoodId = widget.existingEntry?.moodId;
+    if (widget.existingEntry != null) {
+      _selectedActivities.addAll(widget.existingEntry!.activities);
+    }
+    _noteController = TextEditingController(text: widget.existingEntry?.note);
+  }
+
+  @override
+  void dispose() {
+    _noteController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,15 +151,19 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   if (_selectedMoodId != null) {
                     final now = DateTime.now();
                     final entry = MoodEntryEntity(
-                      id: const Uuid().v4(),
+                      id: widget.existingEntry?.id ?? const Uuid().v4(),
                       moodTitle: _getMoodTitle(_selectedMoodId!),
                       moodId: _selectedMoodId!,
-                      date: DateFormat('MMMM d').format(now),
-                      time: DateFormat('HH:mm').format(now),
+                      date: widget.existingEntry?.date ?? DateFormat('MMMM d').format(now),
+                      time: widget.existingEntry?.time ?? DateFormat('HH:mm').format(now),
                       note: _noteController.text,
                       activities: List.from(_selectedActivities),
                     );
-                    context.read<DiaryCubit>().addEntry(entry);
+                    if (widget.existingEntry != null) {
+                      context.read<DiaryCubit>().updateEntry(entry);
+                    } else {
+                      context.read<DiaryCubit>().addEntry(entry);
+                    }
                     Navigator.pop(context);
                   }
                 },
