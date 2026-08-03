@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import '../cubit/diary_cubit.dart';
+import '../cubit/diary_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/glass_card.dart';
 
@@ -7,38 +11,59 @@ class StatsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Column(
-        children: [
-          _buildMonthNavigation(),
-          const SizedBox(height: 24),
-          _buildStreakSection(),
-          const SizedBox(height: 24),
-          _buildMoodFluctuations(),
-          const SizedBox(height: 24),
-          _buildAchievementsSection(),
-          const SizedBox(height: 100), // Space for bottom bar
-        ],
-      ),
+    return BlocBuilder<DiaryCubit, DiaryState>(
+      builder: (context, state) {
+        if (state is DiaryLoading) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is DiaryLoaded) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Column(
+              children: [
+                _buildMonthNavigation(context, state.selectedMonth),
+                const SizedBox(height: 24),
+                _buildStreakSection(),
+                const SizedBox(height: 24),
+                _buildMoodFluctuations(),
+                const SizedBox(height: 24),
+                _buildAchievementsSection(),
+                const SizedBox(height: 100), // Space for bottom bar
+              ],
+            ),
+          );
+        }
+        return const SizedBox();
+      },
     );
   }
 
-  Widget _buildMonthNavigation() {
+  Widget _buildMonthNavigation(BuildContext context, DateTime selectedMonth) {
+    final now = DateTime.now();
+    final bool isCurrentMonth = selectedMonth.year == now.year && selectedMonth.month == now.month;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         IconButton(
           icon: const Icon(Icons.chevron_left, color: AppColors.primary),
-          onPressed: () {},
+          onPressed: () {
+            final prevMonth = DateTime(selectedMonth.year, selectedMonth.month - 1);
+            context.read<DiaryCubit>().changeMonth(prevMonth);
+          },
         ),
-        const Text(
-          "July 2026",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+        Text(
+          DateFormat('MMMM yyyy').format(selectedMonth),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         IconButton(
-          icon: const Icon(Icons.chevron_right, color: AppColors.primary),
-          onPressed: () {},
+          icon: Icon(
+            Icons.chevron_right, 
+            color: isCurrentMonth ? AppColors.outline : AppColors.primary,
+          ),
+          onPressed: isCurrentMonth ? null : () {
+            final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
+            context.read<DiaryCubit>().changeMonth(nextMonth);
+          },
         ),
       ],
     );
@@ -48,9 +73,9 @@ class StatsTab extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
+          children: [
             Text(
               "STREAK",
               style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12, letterSpacing: 1.5),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../widgets/glass_card.dart';
@@ -16,26 +17,100 @@ class MoodTab extends StatelessWidget {
         if (state is DiaryLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is DiaryLoaded) {
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
-            itemCount: state.entries.length + 1, // +1 for the header
-            separatorBuilder: (_, __) => const SizedBox(height: 24),
-            itemBuilder: (context, index) {
-              if (index == 0) {
-                return Text(
-                  "Today, August 2",
-                  style: Theme.of(context).textTheme.headlineMedium,
-                );
-              }
-              final entry = state.entries[index - 1];
-              return MoodEntryCard(entry: entry);
-            },
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: _buildMonthNavigation(context, state.selectedMonth),
+              ),
+              Expanded(
+                child: state.entries.isEmpty 
+                  ? _buildEmptyState()
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 120),
+                      itemCount: state.entries.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 24),
+                      itemBuilder: (context, index) {
+                        final entry = state.entries[index];
+                        return MoodEntryCard(entry: entry);
+                      },
+                    ),
+              ),
+            ],
           );
         } else if (state is DiaryError) {
           return Center(child: Text(state.message));
         }
         return const SizedBox();
       },
+    );
+  }
+
+  Widget _buildMonthNavigation(BuildContext context, DateTime selectedMonth) {
+    final now = DateTime.now();
+    final bool isCurrentMonth = selectedMonth.year == now.year && selectedMonth.month == now.month;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left, color: AppColors.primary),
+          onPressed: () {
+            final prevMonth = DateTime(selectedMonth.year, selectedMonth.month - 1);
+            context.read<DiaryCubit>().changeMonth(prevMonth);
+          },
+        ),
+        Text(
+          DateFormat('MMMM yyyy').format(selectedMonth),
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        IconButton(
+          icon: Icon(
+            Icons.chevron_right, 
+            color: isCurrentMonth ? AppColors.outline : AppColors.primary,
+          ),
+          onPressed: isCurrentMonth ? null : () {
+            final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
+            context.read<DiaryCubit>().changeMonth(nextMonth);
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: GlassCard(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.history_edu, size: 64, color: AppColors.outline.withOpacity(0.5)),
+              const SizedBox(height: 24),
+              const Text(
+                "You haven't added anything yet",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                "Switch to another month or start your journey today!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppColors.outline,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

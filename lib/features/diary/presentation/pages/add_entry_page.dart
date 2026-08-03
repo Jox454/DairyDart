@@ -158,6 +158,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                       time: widget.existingEntry?.time ?? DateFormat('HH:mm').format(now),
                       note: _noteController.text,
                       activities: List.from(_selectedActivities),
+                      createdAt: widget.existingEntry?.createdAt ?? now,
                     );
                     if (widget.existingEntry != null) {
                       context.read<DiaryCubit>().updateEntry(entry);

@@ -1,40 +1,33 @@
-# Implementation Plan - Stats Tab and Entry Editing
+# Implementation Plan - Functional Month Switcher in Stats Tab
 
-The goal is to implement the "Stats" tab based on the reference design and add the ability to edit mood entries.
+This plan details adding a functional month switcher to the `StatsTab`, ensuring consistency with `MoodTab` and `JournalTab` as per the project's Clean Architecture and state management patterns.
 
 ## User Review Required
 
 > [!NOTE]
-> The Stats tab will include mock data for streaks, fluctuations, and achievements to match the design. The editing functionality will allow users to modify all aspects of a mood entry.
+> The Stats tab currently uses mock data for streaks and charts. This update will make the month navigation functional (changing the global state), but the statistical data will remain mock for now as per the "don't touch anything else" instruction.
 
 ## Proposed Changes
 
-### Diary Presentation Layer
+### Presentation Layer
 
-#### [NEW] [stats_tab.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/stats_tab.dart)
-- Implement "July 2026" navigation.
-- Implement "Streak" card with a row of status icons.
-- Implement "Mood Fluctuations" card with a mock line chart using `CustomPainter`.
-- Implement "Achievements" grid with stylized badges.
-
-#### [MODIFY] [add_entry_page.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/add_entry_page.dart)
-- Add `final MoodEntryEntity? existingEntry` constructor parameter.
-- Initialize `_selectedMoodId`, `_selectedActivities`, and `_noteController` from `existingEntry` in `initState`.
-- Update the save button logic to call `updateEntry` if `existingEntry` is not null.
-
-#### [MODIFY] [mood_tab.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/mood_tab.dart)
-- Update `PopupMenuButton` in `MoodEntryCard`.
-- Implement navigation to `AddEntryPage(existingEntry: entry)` when the "Edit" option is selected.
-
-#### [MODIFY] [dashboard_page.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/dashboard_page.dart)
-- Import and use `StatsTab` in the `_buildCurrentTab` method.
+#### [MODIFY] [stats_tab.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/stats_tab.dart)
+- Convert the widget to use `BlocBuilder<DiaryCubit, DiaryState>`.
+- Update `_buildMonthNavigation` to:
+    - Display the `selectedMonth` from the `DiaryLoaded` state.
+    - Implement `onPressed` for the left arrow to go to the previous month.
+    - Implement `onPressed` for the right arrow to go to the next month.
+    - Disable the right arrow if the `selectedMonth` is the current month (to prevent navigating into the future).
+- Use `intl` package for month formatting (consistency with other tabs).
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `analyze_file` on all modified files to ensure no syntax errors.
+- Verify compilation and architecture adherence with `analyze_file`.
 
 ### Manual Verification
-- Navigate to the "Stats" tab and verify the layout matches the requirements.
-- Open the "Mood" tab, click "Edit" on an entry, and verify that the `AddEntryPage` is correctly pre-populated.
-- Change some values, save, and verify that the entry is updated in the list.
+- Open the **Stats** tab.
+- Click the left arrow: verify the month updates to "June 2026" (if current is July).
+- Click the right arrow: verify it returns to the current month.
+- Verify the right arrow is disabled when viewing the current month.
+- Switch to the **Mood** tab and verify the selected month is synchronized across both tabs.

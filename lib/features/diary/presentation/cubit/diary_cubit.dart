@@ -19,14 +19,34 @@ class DiaryCubit extends Cubit<DiaryState> {
     required this.updateMoodEntry,
   }) : super(DiaryInitial());
 
-  Future<void> loadEntries() async {
+  Future<void> loadEntries({DateTime? month}) async {
+    final DateTime targetMonth = month ?? 
+        (state is DiaryLoaded ? (state as DiaryLoaded).selectedMonth : DateTime.now());
+    
     emit(DiaryLoading());
     try {
-      final entries = await getMoodEntries();
-      emit(DiaryLoaded(entries));
+      final allEntries = await getMoodEntries();
+      
+      // Filter entries by month and year
+      final filteredEntries = allEntries.where((entry) {
+        return entry.createdAt.month == targetMonth.month && 
+               entry.createdAt.year == targetMonth.year;
+      }).toList();
+
+      // Sort entries by date (newest first)
+      filteredEntries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+      emit(DiaryLoaded(
+        entries: filteredEntries,
+        selectedMonth: DateTime(targetMonth.year, targetMonth.month),
+      ));
     } catch (e) {
       emit(const DiaryError("Failed to load entries"));
     }
+  }
+
+  Future<void> changeMonth(DateTime newMonth) async {
+    await loadEntries(month: newMonth);
   }
 
   Future<void> addEntry(MoodEntryEntity entry) async {
