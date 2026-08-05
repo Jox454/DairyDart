@@ -38,6 +38,7 @@ class DiaryCubit extends Cubit<DiaryState> {
 
       emit(DiaryLoaded(
         entries: filteredEntries,
+        allEntries: allEntries,
         selectedMonth: DateTime(targetMonth.year, targetMonth.month),
       ));
     } catch (e) {

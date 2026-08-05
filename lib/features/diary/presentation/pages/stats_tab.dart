@@ -5,6 +5,7 @@ import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/glass_card.dart';
+import '../../domain/entities/mood_entry_entity.dart';
 
 class StatsTab extends StatelessWidget {
   const StatsTab({super.key});
@@ -16,17 +17,22 @@ class StatsTab extends StatelessWidget {
         if (state is DiaryLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is DiaryLoaded) {
+          final activeDates = state.allEntries.map((e) {
+            return DateFormat('yyyy-MM-dd').format(e.createdAt);
+          }).toSet();
+          
+          final streak = _calculateStreak(activeDates);
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Column(
               children: [
-                _buildMonthNavigation(context, state.selectedMonth),
+                _buildMonthDisplay(state.selectedMonth),
                 const SizedBox(height: 24),
-                _buildStreakSection(),
+                _buildStreakSection(streak, activeDates),
                 const SizedBox(height: 24),
-                _buildMoodFluctuations(),
+                _buildMoodFluctuations(state.allEntries),
                 const SizedBox(height: 24),
-                _buildAchievementsSection(),
+                _buildAchievementsSection(state.entries),
                 const SizedBox(height: 100), // Space for bottom bar
               ],
             ),
@@ -37,52 +43,59 @@ class StatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMonthNavigation(BuildContext context, DateTime selectedMonth) {
-    final now = DateTime.now();
-    final bool isCurrentMonth = selectedMonth.year == now.year && selectedMonth.month == now.month;
+  int _calculateStreak(Set<String> activeDates) {
+    if (activeDates.isEmpty) return 0;
+    
+    int streak = 0;
+    DateTime dateToCheck = DateTime.now();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left, color: AppColors.primary),
-          onPressed: () {
-            final prevMonth = DateTime(selectedMonth.year, selectedMonth.month - 1);
-            context.read<DiaryCubit>().changeMonth(prevMonth);
-          },
-        ),
-        Text(
-          DateFormat('MMMM yyyy').format(selectedMonth),
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        IconButton(
-          icon: Icon(
-            Icons.chevron_right, 
-            color: isCurrentMonth ? AppColors.outline : AppColors.primary,
-          ),
-          onPressed: isCurrentMonth ? null : () {
-            final nextMonth = DateTime(selectedMonth.year, selectedMonth.month + 1);
-            context.read<DiaryCubit>().changeMonth(nextMonth);
-          },
-        ),
-      ],
+    if (!activeDates.contains(DateFormat('yyyy-MM-dd').format(dateToCheck))) {
+      dateToCheck = dateToCheck.subtract(const Duration(days: 1));
+    }
+
+    while (activeDates.contains(DateFormat('yyyy-MM-dd').format(dateToCheck))) {
+      streak++;
+      dateToCheck = dateToCheck.subtract(const Duration(days: 1));
+    }
+
+    return streak;
+  }
+
+  Widget _buildMonthDisplay(DateTime selectedMonth) {
+    return Center(
+      child: Text(
+        DateFormat('MMMM yyyy').format(selectedMonth),
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+      ),
     );
   }
 
-  Widget _buildStreakSection() {
+  Widget _buildStreakSection(int streakCount, Set<String> activeDates) {
+    final now = DateTime.now();
+    final List<Map<String, dynamic>> days = [];
+    for (int i = 5; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateStr = DateFormat('yyyy-MM-dd').format(date);
+      days.add({
+        'label': DateFormat('E').format(date),
+        'dayNum': date.day.toString(),
+        'isDone': activeDates.contains(dateStr), 
+      });
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
+            const Text(
               "STREAK",
               style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12, letterSpacing: 1.5),
             ),
             Text(
-              "4 Days Row",
-              style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+              "$streakCount Days Row",
+              style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -92,14 +105,7 @@ class StatsTab extends StatelessWidget {
           borderRadius: 16,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildStreakDay("Mon", true),
-              _buildStreakDay("Tue", true),
-              _buildStreakDay("Wed", true),
-              _buildStreakDay("Thu", true),
-              _buildStreakDay("Fri", false, dayNum: "17"),
-              _buildStreakDay("Sat", false, dayNum: "18"),
-            ],
+            children: days.map((d) => _buildStreakDay(d['label'], d['isDone'], dayNum: d['dayNum'])).toList(),
           ),
         ),
       ],
@@ -129,15 +135,36 @@ class StatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildMoodFluctuations() {
+  Widget _buildMoodFluctuations(List<MoodEntryEntity> entries) {
+    final now = DateTime.now();
+    final List<double> scores = [];
+    final List<String> labels = [];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateStr = DateFormat('yyyy-MM-dd').format(date);
+      labels.add(DateFormat('dd').format(date));
+
+      final dayEntries = entries.where((e) => DateFormat('yyyy-MM-dd').format(e.createdAt) == dateStr).toList();
+      if (dayEntries.isEmpty) {
+        scores.add(0);
+      } else {
+        double total = 0;
+        for (var e in dayEntries) {
+          total += _getMoodScore(e.moodId);
+        }
+        scores.add(total / dayEntries.length);
+      }
+    }
+
     return GlassCard(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 "MOOD FLUCTUATIONS",
                 style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12, letterSpacing: 1.5),
@@ -151,13 +178,13 @@ class StatsTab extends StatelessWidget {
             height: 100,
             width: double.infinity,
             child: CustomPaint(
-              painter: _MoodChartPainter(),
+              painter: _MoodChartPainter(scores: scores),
             ),
           ),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: ["28", "29", "30", "31", "01", "02", "03"]
+            children: labels
                 .map((d) => Text(d, style: const TextStyle(color: AppColors.primary, fontSize: 10, fontWeight: FontWeight.bold)))
                 .toList(),
           )
@@ -166,85 +193,142 @@ class StatsTab extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementsSection() {
+  double _getMoodScore(String id) {
+    switch (id) {
+      case "super": return 5;
+      case "good": return 4;
+      case "neutral": return 3;
+      case "bad": return 2;
+      case "awful": return 1;
+      default: return 3;
+    }
+  }
+
+  Widget _buildAchievementsSection(List<MoodEntryEntity> monthEntries) {
+    final List<Widget> unlockedAchievements = [];
+
+    // Zen Master: 7+ entries in the month
+    if (monthEntries.length >= 7) {
+      unlockedAchievements.add(_buildAchievement("Zen Master", "7 entries this month", Icons.workspace_premium, AppColors.tertiary));
+    }
+
+    // On Fire: at least 1 entry in the month
+    if (monthEntries.isNotEmpty) {
+      unlockedAchievements.add(_buildAchievement("On Fire", "Started this month", Icons.local_fire_department, AppColors.primary));
+    }
+
+    // Optimist: 5+ Good or Super entries in the month
+    final positiveCount = monthEntries.where((e) => e.moodId == 'super' || e.moodId == 'good').length;
+    if (positiveCount >= 5) {
+      unlockedAchievements.add(_buildAchievement("Optimist", "5 positive days", Icons.auto_awesome, AppColors.secondary));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "ACHIEVEMENTS",
+          "MONTH ACHIEVEMENTS",
           style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12, letterSpacing: 1.5),
         ),
         const SizedBox(height: 16),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          childAspectRatio: 1.2,
-          children: [
-            _buildAchievement("Zen Master", "7 days of meditation", Icons.workspace_premium, AppColors.tertiary),
-            _buildAchievement("On Fire", "Longest streak ever", Icons.local_fire_department, AppColors.primary),
-            _buildAchievement("Philosopher", "Write 50 journals", Icons.psychology, AppColors.onSurfaceVariant, isLocked: true),
-            _buildAchievement("Optimist", "10 Good days in a row", Icons.auto_awesome, AppColors.secondary),
-          ],
-        ),
+        if (unlockedAchievements.isEmpty)
+          _buildEmptyAchievements()
+        else
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.2,
+            children: unlockedAchievements,
+          ),
       ],
     );
   }
 
-  Widget _buildAchievement(String title, String desc, IconData icon, Color color, {bool isLocked = false}) {
+  Widget _buildEmptyAchievements() {
+    return GlassCard(
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 20),
+      borderRadius: 16,
+      child: Center(
+        child: Column(
+          children: [
+            Icon(Icons.emoji_events_outlined, size: 48, color: AppColors.outline.withOpacity(0.3)),
+            const SizedBox(height: 16),
+            const Text(
+              "No achievements yet",
+              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              "Keep tracking your mood to unlock special month badges!",
+              textAlign: TextAlign.center,
+              style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAchievement(String title, String desc, IconData icon, Color color) {
     return GlassCard(
       padding: const EdgeInsets.all(12),
       borderRadius: 16,
-      child: Opacity(
-        opacity: isLocked ? 0.5 : 1.0,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: color.withOpacity(0.2),
-              ),
-              child: Icon(icon, color: color, size: 30),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color.withOpacity(0.2),
             ),
-            const SizedBox(height: 8),
-            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
-            Text(desc, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 9)),
-          ],
-        ),
+            child: Icon(icon, color: color, size: 30),
+          ),
+          const SizedBox(height: 8),
+          Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13)),
+          Text(desc, textAlign: TextAlign.center, style: const TextStyle(color: AppColors.onSurfaceVariant, fontSize: 9)),
+        ],
       ),
     );
   }
 }
 
 class _MoodChartPainter extends CustomPainter {
+  final List<double> scores;
+
+  _MoodChartPainter({required this.scores});
+
   @override
   void paint(Canvas canvas, Size size) {
+    if (scores.isEmpty) return;
+
     final paint = Paint()
       ..color = AppColors.primary
       ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
     final path = Path();
-    final points = [
-      Offset(0, size.height * 0.8),
-      Offset(size.width * 0.15, size.height * 0.4),
-      Offset(size.width * 0.3, size.height * 0.7),
-      Offset(size.width * 0.45, size.height * 0.3),
-      Offset(size.width * 0.6, size.height * 0.6),
-      Offset(size.width * 0.75, size.height * 0.4),
-      Offset(size.width, size.height * 0.5),
-    ];
+    final double stepX = size.width / (scores.length - 1);
+    
+    double getY(double score) {
+      if (score == 0) return size.height;
+      return size.height - ((score - 1) / 4 * size.height * 0.8 + size.height * 0.1);
+    }
+
+    final List<Offset> points = [];
+    for (int i = 0; i < scores.length; i++) {
+      points.add(Offset(i * stepX, getY(scores[i])));
+    }
 
     path.moveTo(points[0].dx, points[0].dy);
     for (var i = 1; i < points.length; i++) {
       path.lineTo(points[i].dx, points[i].dy);
     }
 
-    // Gradient fill
     final fillPath = Path.from(path)
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
@@ -260,13 +344,17 @@ class _MoodChartPainter extends CustomPainter {
     canvas.drawPath(fillPath, fillPaint);
     canvas.drawPath(path, paint);
 
-    // Draw points
     final dotPaint = Paint()..color = AppColors.primary;
+    final dotBorderPaint = Paint()
+      ..color = AppColors.background
+      ..style = PaintingStyle.fill;
+
     for (var point in points) {
-      canvas.drawCircle(point, 4, dotPaint);
+      canvas.drawCircle(point, 5, dotBorderPaint);
+      canvas.drawCircle(point, 3, dotPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _MoodChartPainter oldDelegate) => oldDelegate.scores != scores;
 }

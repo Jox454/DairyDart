@@ -14,15 +14,17 @@ class DiaryLoading extends DiaryState {}
 
 class DiaryLoaded extends DiaryState {
   final List<MoodEntryEntity> entries;
+  final List<MoodEntryEntity> allEntries;
   final DateTime selectedMonth;
 
   const DiaryLoaded({
     required this.entries,
+    required this.allEntries,
     required this.selectedMonth,
   });
 
   @override
-  List<Object?> get props => [entries, selectedMonth];
+  List<Object?> get props => [entries, allEntries, selectedMonth];
 }
 
 class DiaryError extends DiaryState {

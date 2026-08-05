@@ -1,33 +1,34 @@
-# Implementation Plan - Functional Month Switcher in Stats Tab
+# Implementation Plan - Stats Tab UI Refinement
 
-This plan details adding a functional month switcher to the `StatsTab`, ensuring consistency with `MoodTab` and `JournalTab` as per the project's Clean Architecture and state management patterns.
+The goal is to simplify the `StatsTab` by removing month navigation and updating the achievements section to focus on the selected month's progress.
 
 ## User Review Required
 
-> [!NOTE]
-> The Stats tab currently uses mock data for streaks and charts. This update will make the month navigation functional (changing the global state), but the statistical data will remain mock for now as per the "don't touch anything else" instruction.
+> [!IMPORTANT]
+> The month navigation (arrows) will be removed from the Stats tab. The tab will still display the month and year of the `selectedMonth`, which can be changed from the Journal or Mood tabs.
 
 ## Proposed Changes
 
 ### Presentation Layer
 
 #### [MODIFY] [stats_tab.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/stats_tab.dart)
-- Convert the widget to use `BlocBuilder<DiaryCubit, DiaryState>`.
-- Update `_buildMonthNavigation` to:
-    - Display the `selectedMonth` from the `DiaryLoaded` state.
-    - Implement `onPressed` for the left arrow to go to the previous month.
-    - Implement `onPressed` for the right arrow to go to the next month.
-    - Disable the right arrow if the `selectedMonth` is the current month (to prevent navigating into the future).
-- Use `intl` package for month formatting (consistency with other tabs).
+- **Month Display**: Update `_buildMonthNavigation` to remove the `IconButton`s. The month and year text will be centered and displayed statically.
+- **Achievements Section**:
+    - Rename the section header from "ACHIEVEMENTS" to "MONTH ACHIEVEMENTS".
+    - Implement logic to calculate month-specific achievements based on `state.entries`:
+        - **Zen Master**: Unlocked if the user has 7 or more entries in the selected month.
+        - **On Fire**: Unlocked if the user has any entries in the selected month.
+        - **Optimist**: Unlocked if the user has 5 or more "Good" or "Super" entries in the selected month.
+    - If no achievements are unlocked for the month, display a beautifully designed "No achievements yet" message inside a `GlassCard`.
 
 ## Verification Plan
 
 ### Automated Tests
-- Verify compilation and architecture adherence with `analyze_file`.
+- Run `analyze_file` to ensure no syntax errors.
 
 ### Manual Verification
 - Open the **Stats** tab.
-- Click the left arrow: verify the month updates to "June 2026" (if current is July).
-- Click the right arrow: verify it returns to the current month.
-- Verify the right arrow is disabled when viewing the current month.
-- Switch to the **Mood** tab and verify the selected month is synchronized across both tabs.
+- Verify that the month switcher (arrows) is gone and the month/year is centered.
+- Check the achievements section:
+    - If there are enough entries for August (based on mock data), verify that the relevant achievements are shown.
+    - Switch to a month with no entries (e.g., June 2026) using the Journal tab, then return to Stats and verify the "No achievements yet" message is displayed.
