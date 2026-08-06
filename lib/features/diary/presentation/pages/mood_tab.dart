@@ -17,12 +17,21 @@ class MoodTab extends StatelessWidget {
         if (state is DiaryLoading) {
           return const Center(child: CircularProgressIndicator());
         } else if (state is DiaryLoaded) {
+          final now = DateTime.now();
+          final bool hasEntryToday = state.allEntries.any((e) => 
+            e.createdAt.year == now.year && 
+            e.createdAt.month == now.month && 
+            e.createdAt.day == now.day
+          );
+
           return Column(
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: _buildMonthNavigation(context, state.selectedMonth),
               ),
+              if (!hasEntryToday)
+                _buildAddEntryCTA(context),
               Expanded(
                 child: state.entries.isEmpty 
                   ? _buildEmptyState()
@@ -75,6 +84,60 @@ class MoodTab extends StatelessWidget {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildAddEntryCTA(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        borderRadius: 16,
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.add_reaction_outlined, color: AppColors.primary, size: 24),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "How are you today?",
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  Text(
+                    "You haven't added a mood yet.",
+                    style: TextStyle(color: AppColors.onSurfaceVariant, fontSize: 12),
+                  ),
+                ],
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const AddEntryPage()),
+                );
+              },
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  color: AppColors.primary,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.add, color: Colors.black, size: 24),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -177,6 +240,27 @@ class MoodEntryCard extends StatelessWidget {
                         ),
                       );
                     }).toList(),
+                  ),
+                ],
+                if (entry.imageUrls.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 80,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: entry.imageUrls.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, imgIndex) {
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.network(
+                            entry.imageUrls[imgIndex],
+                            width: 120,
+                            fit: BoxFit.cover,
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ],
               ],

@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/glass_card.dart';
+import 'photo_gallery_page.dart';
+import 'achievements_page.dart';
 
 class ProfileTab extends StatelessWidget {
-  const ProfileTab({super.key});
+  final VoidCallback onMoodTabRequested;
+
+  const ProfileTab({
+    super.key,
+    required this.onMoodTabRequested,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +20,7 @@ class ProfileTab extends StatelessWidget {
         children: [
           _buildProfileHeader(),
           const SizedBox(height: 24),
-          _buildProfileItems(),
+          _buildProfileItems(context),
           const SizedBox(height: 24),
           _buildPremiumBanner(),
           const SizedBox(height: 100), // Space for bottom bar
@@ -65,54 +72,94 @@ class ProfileTab extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileItems() {
+  Widget _buildProfileItems(BuildContext context) {
     return Column(
       children: [
-        _buildItem(Icons.ads_click, "Goals", iconColor: Colors.deepPurpleAccent),
-        _buildItem(Icons.analytics_outlined, "Weekly Reports", iconColor: Colors.blueAccent),
-        _buildItem(Icons.calendar_today, "Important Days", iconColor: Colors.pinkAccent),
-        _buildItem(Icons.photo_library_outlined, "Photo Gallery", iconColor: Colors.tealAccent),
-        _buildItem(Icons.military_tech_outlined, "Achievements", iconColor: Colors.orangeAccent),
-        _buildItem(Icons.notifications_none, "Reminders", isSwitch: true, iconColor: Colors.deepPurple),
-        _buildItem(Icons.sentiment_satisfied_alt, "Edit Moods", iconColor: Colors.blue),
-        _buildItem(Icons.fitness_center, "Edit Activities", iconColor: Colors.blueGrey),
+        _buildItem(
+          Icons.analytics_outlined, 
+          "Weekly Reports", 
+          iconColor: Colors.blueAccent,
+          onTap: () {},
+        ),
+        _buildItem(
+          Icons.photo_library_outlined, 
+          "Photo Gallery", 
+          iconColor: Colors.tealAccent,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const PhotoGalleryPage()),
+            );
+          },
+        ),
+        _buildItem(
+          Icons.military_tech_outlined, 
+          "Achievements", 
+          iconColor: Colors.orangeAccent,
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const AchievementsPage()),
+            );
+          },
+        ),
+        _buildItem(
+          Icons.notifications_none, 
+          "Reminders", 
+          isSwitch: true, 
+          iconColor: Colors.deepPurple,
+          onTap: () {},
+        ),
+        _buildItem(
+          Icons.sentiment_satisfied_alt, 
+          "Edit Moods", 
+          iconColor: Colors.blue,
+          onTap: onMoodTabRequested,
+        ),
       ],
     );
   }
 
-  Widget _buildItem(IconData icon, String title, {bool isSwitch = false, Color? iconColor}) {
+  Widget _buildItem(
+    IconData icon, 
+    String title, {
+    bool isSwitch = false, 
+    Color? iconColor,
+    required VoidCallback onTap,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      child: GlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        borderRadius: 16,
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.05),
-                borderRadius: BorderRadius.circular(12),
+      child: GestureDetector(
+        onTap: isSwitch ? null : onTap,
+        child: GlassCard(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          borderRadius: 16,
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: iconColor ?? AppColors.primary, size: 24),
               ),
-              child: Icon(icon, color: iconColor ?? AppColors.primary, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
+                ),
               ),
-            ),
-            if (isSwitch)
-              Switch(
-                value: true,
-                onChanged: (v) {},
-                activeColor: Colors.white,
-                activeTrackColor: AppColors.primary,
-              )
-            else
-              const Icon(Icons.chevron_right, color: AppColors.outline),
-          ],
+              if (isSwitch)
+                Switch(
+                  value: true,
+                  onChanged: (v) {},
+                  activeColor: Colors.white,
+                  activeTrackColor: AppColors.primary,
+                )
+              else
+                const Icon(Icons.chevron_right, color: AppColors.outline),
+            ],
+          ),
         ),
       ),
     );

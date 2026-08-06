@@ -8,6 +8,7 @@ class MoodEntryEntity extends Equatable {
   final String time;
   final String note;
   final List<String> activities;
+  final List<String> imageUrls;
   final DateTime createdAt;
 
   const MoodEntryEntity({
@@ -18,9 +19,10 @@ class MoodEntryEntity extends Equatable {
     required this.time,
     required this.note,
     required this.activities,
+    required this.imageUrls,
     required this.createdAt,
   });
 
   @override
-  List<Object?> get props => [id, moodTitle, moodId, date, time, note, activities, createdAt];
+  List<Object?> get props => [id, moodTitle, moodId, date, time, note, activities, imageUrls, createdAt];
 }

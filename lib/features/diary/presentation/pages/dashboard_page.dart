@@ -81,7 +81,9 @@ class _DashboardPageState extends State<DashboardPage> {
       case "stats":
         return const StatsTab();
       case "profile":
-        return const ProfileTab();
+        return ProfileTab(
+          onMoodTabRequested: () => setState(() => _currentIndex = 0),
+        );
       default:
         return const MoodTab();
     }

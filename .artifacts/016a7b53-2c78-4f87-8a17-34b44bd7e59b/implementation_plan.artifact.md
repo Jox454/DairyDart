@@ -1,34 +1,39 @@
-# Implementation Plan - Stats Tab UI Refinement
+# Implementation Plan - Dynamic Achievements Synchronization
 
-The goal is to simplify the `StatsTab` by removing month navigation and updating the achievements section to focus on the selected month's progress.
+The goal is to synchronize the achievements shown in the `StatsTab` and the `AchievementsPage` by making both dynamic and based on the same rules.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> The month navigation (arrows) will be removed from the Stats tab. The tab will still display the month and year of the `selectedMonth`, which can be changed from the Journal or Mood tabs.
+> Achievements will now be calculated automatically based on your real mood entries. The static mock list in the "Achievements" page will be replaced with dynamic logic. To see all achievements unlocked for August, you will need at least 7 entries with 5 positive moods.
 
 ## Proposed Changes
 
+### Data Layer
+
+#### [MODIFY] [diary_repository_impl.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/data/repositories/diary_repository_impl.dart)
+- Add more mock entries for August (August 6 and August 7) to ensure "Zen Master" (7 entries) and "Optimist" (5 positive entries) are unlocked by default in the test data.
+
 ### Presentation Layer
 
+#### [MODIFY] [achievements_page.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/achievements_page.dart)
+- Convert to use `BlocBuilder<DiaryCubit, DiaryState>`.
+- Implement dynamic calculation of achievements for every month represented in the user's history.
+- Logic:
+    - **On Fire**: Unlocked on the day of the 1st entry of any month.
+    - **Zen Master**: Unlocked on the day of the 7th entry of any month.
+    - **Optimist**: Unlocked on the day of the 5th "Good" or "Super" entry of any month.
+- Group and display these earned milestones by date, newest first.
+
 #### [MODIFY] [stats_tab.dart](file:///C:/Users/d/Desktop/Blog/Diary/Code/lib/features/diary/presentation/pages/stats_tab.dart)
-- **Month Display**: Update `_buildMonthNavigation` to remove the `IconButton`s. The month and year text will be centered and displayed statically.
-- **Achievements Section**:
-    - Rename the section header from "ACHIEVEMENTS" to "MONTH ACHIEVEMENTS".
-    - Implement logic to calculate month-specific achievements based on `state.entries`:
-        - **Zen Master**: Unlocked if the user has 7 or more entries in the selected month.
-        - **On Fire**: Unlocked if the user has any entries in the selected month.
-        - **Optimist**: Unlocked if the user has 5 or more "Good" or "Super" entries in the selected month.
-    - If no achievements are unlocked for the month, display a beautifully designed "No achievements yet" message inside a `GlassCard`.
+- Ensure it uses the exact same calculation rules as `AchievementsPage` for the selected month to maintain 100% synchronization.
 
 ## Verification Plan
 
 ### Automated Tests
-- Run `analyze_file` to ensure no syntax errors.
+- Run `analyze_file` to ensure code correctness.
 
 ### Manual Verification
-- Open the **Stats** tab.
-- Verify that the month switcher (arrows) is gone and the month/year is centered.
-- Check the achievements section:
-    - If there are enough entries for August (based on mock data), verify that the relevant achievements are shown.
-    - Switch to a month with no entries (e.g., June 2026) using the Journal tab, then return to Stats and verify the "No achievements yet" message is displayed.
+- Open **Stats**: verify it shows 3 achievements for August (with updated mock data).
+- Open **Profile -> Achievements**: verify the same 3 achievements are listed for August, grouped by the date they were earned.
+- Delete an entry in **Mood**: verify both pages update and achievements disappear if conditions are no longer met.

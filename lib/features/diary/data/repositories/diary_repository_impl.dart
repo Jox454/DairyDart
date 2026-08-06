@@ -4,6 +4,28 @@ import '../../domain/repositories/diary_repository.dart';
 class DiaryRepositoryImpl implements DiaryRepository {
   final List<MoodEntryEntity> _entries = [
     MoodEntryEntity(
+      id: "8",
+      moodTitle: "Good",
+      moodId: "good",
+      date: "August 7",
+      time: "11:00",
+      note: "Another positive day!",
+      activities: const ["Friends"],
+      imageUrls: const [],
+      createdAt: DateTime(2026, 8, 7, 11, 0),
+    ),
+    MoodEntryEntity(
+      id: "9",
+      moodTitle: "Super",
+      moodId: "super",
+      date: "August 6",
+      time: "09:30",
+      note: "Early morning yoga was great.",
+      activities: const ["Sport"],
+      imageUrls: const [],
+      createdAt: DateTime(2026, 8, 6, 9, 30),
+    ),
+    MoodEntryEntity(
       id: "6",
       moodTitle: "Super",
       moodId: "super",
@@ -11,6 +33,10 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "10:00",
       note: "Today is a great day!",
       activities: const ["Friends", "Sport"],
+      imageUrls: const [
+        "https://picsum.photos/id/10/400/300",
+        "https://picsum.photos/id/20/400/300"
+      ],
       createdAt: DateTime(2026, 8, 5, 10, 0),
     ),
     MoodEntryEntity(
@@ -21,6 +47,7 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "18:30",
       note: "Productive day.",
       activities: const ["Work"],
+      imageUrls: const ["https://picsum.photos/id/30/400/300"],
       createdAt: DateTime(2026, 8, 4, 18, 30),
     ),
     MoodEntryEntity(
@@ -31,6 +58,7 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "16:58",
       note: "The day went calmly, but I feel a bit tired.",
       activities: const [],
+      imageUrls: const [],
       createdAt: DateTime(2026, 8, 3, 16, 58),
     ),
     MoodEntryEntity(
@@ -41,6 +69,7 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "14:20",
       note: "Spent some time reading a book. Felt very peaceful.",
       activities: const [],
+      imageUrls: const ["https://picsum.photos/id/40/400/300"],
       createdAt: DateTime(2026, 8, 2, 14, 20),
     ),
     MoodEntryEntity(
@@ -51,6 +80,7 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "21:00",
       note: "Feeling a bit down.",
       activities: const [],
+      imageUrls: const [],
       createdAt: DateTime(2026, 8, 1, 21, 0),
     ),
     MoodEntryEntity(
@@ -61,6 +91,10 @@ class DiaryRepositoryImpl implements DiaryRepository {
       time: "10:15",
       note: "Amazing day at the beach!",
       activities: const ["Friends", "Sport"],
+      imageUrls: const [
+        "https://picsum.photos/id/50/400/300",
+        "https://picsum.photos/id/60/400/300"
+      ],
       createdAt: DateTime(2026, 7, 31, 10, 15),
     ),
   ];

@@ -126,6 +126,27 @@ class _AddEntryPageState extends State<AddEntryPage> {
                         // Photo
                         const Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
+                        if (widget.existingEntry != null && widget.existingEntry!.imageUrls.isNotEmpty) ...[
+                          SizedBox(
+                            height: 100,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: widget.existingEntry!.imageUrls.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemBuilder: (context, imgIndex) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.network(
+                                    widget.existingEntry!.imageUrls[imgIndex],
+                                    width: 150,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         Row(
                           children: [
                             Expanded(child: _PhotoBtn(icon: Icons.photo_camera, label: "Take a photo")),
@@ -158,6 +179,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                       time: widget.existingEntry?.time ?? DateFormat('HH:mm').format(now),
                       note: _noteController.text,
                       activities: List.from(_selectedActivities),
+                      imageUrls: widget.existingEntry?.imageUrls ?? [],
                       createdAt: widget.existingEntry?.createdAt ?? now,
                     );
                     if (widget.existingEntry != null) {
