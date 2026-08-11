@@ -3,6 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../widgets/glass_card.dart';
 import 'photo_gallery_page.dart';
 import 'achievements_page.dart';
+import 'monthly_reports_page.dart';
 
 class ProfileTab extends StatelessWidget {
   final VoidCallback onMoodTabRequested;
@@ -77,9 +78,13 @@ class ProfileTab extends StatelessWidget {
       children: [
         _buildItem(
           Icons.analytics_outlined, 
-          "Weekly Reports", 
+          "Monthly Reports", 
           iconColor: Colors.blueAccent,
-          onTap: () {},
+          onTap: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const MonthlyReportsPage()),
+            );
+          },
         ),
         _buildItem(
           Icons.photo_library_outlined, 
