@@ -7,10 +7,14 @@ import 'monthly_reports_page.dart';
 
 class ProfileTab extends StatelessWidget {
   final VoidCallback onMoodTabRequested;
+  final bool isRemindersEnabled;
+  final ValueChanged<bool> onRemindersChanged;
 
   const ProfileTab({
     super.key,
     required this.onMoodTabRequested,
+    required this.isRemindersEnabled,
+    required this.onRemindersChanged,
   });
 
   @override
@@ -110,6 +114,8 @@ class ProfileTab extends StatelessWidget {
           Icons.notifications_none, 
           "Reminders", 
           isSwitch: true, 
+          switchValue: isRemindersEnabled,
+          onSwitchChanged: onRemindersChanged,
           iconColor: Colors.deepPurple,
           onTap: () {},
         ),
@@ -127,6 +133,8 @@ class ProfileTab extends StatelessWidget {
     IconData icon, 
     String title, {
     bool isSwitch = false, 
+    bool switchValue = false,
+    ValueChanged<bool>? onSwitchChanged,
     Color? iconColor,
     required VoidCallback onTap,
   }) {
@@ -156,8 +164,8 @@ class ProfileTab extends StatelessWidget {
               ),
               if (isSwitch)
                 Switch(
-                  value: true,
-                  onChanged: (v) {},
+                  value: switchValue,
+                  onChanged: onSwitchChanged,
                   activeColor: Colors.white,
                   activeTrackColor: AppColors.primary,
                 )

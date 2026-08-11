@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'full_screen_image_page.dart';
 import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -349,11 +351,28 @@ class MonthlyReportsPage extends StatelessWidget {
             ),
             itemCount: allImages.length,
             itemBuilder: (context, index) {
-              return ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  allImages[index],
-                  fit: BoxFit.cover,
+              final imageUrl = allImages[index];
+              final isNetwork = imageUrl.startsWith('http');
+              return GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: imageUrl)),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    color: AppColors.surfaceVariant.withOpacity(0.1),
+                    child: isNetwork 
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                        )
+                      : Image.file(
+                          File(imageUrl),
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                        ),
+                  ),
                 ),
               );
             },
@@ -371,6 +390,12 @@ class MonthlyReportsPage extends StatelessWidget {
       case "awful": return 1;
       default: return 3;
     }
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return const Center(
+      child: Icon(Icons.cloud_off_outlined, color: AppColors.outline, size: 20),
+    );
   }
 }
 

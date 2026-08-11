@@ -15,6 +15,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
+  bool _isRemindersEnabled = true;
 
   final List<String> _tabs = ["mood", "stats", "journal", "profile"];
 
@@ -82,6 +83,10 @@ class _DashboardPageState extends State<DashboardPage> {
         return const StatsTab();
       case "profile":
         return ProfileTab(
+          isRemindersEnabled: _isRemindersEnabled,
+          onRemindersChanged: (value) {
+            setState(() => _isRemindersEnabled = value);
+          },
           onMoodTabRequested: () => setState(() => _currentIndex = 0),
         );
       default:

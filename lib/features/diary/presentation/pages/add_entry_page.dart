@@ -1,7 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
+import 'full_screen_image_page.dart';
 import '../cubit/diary_cubit.dart';
 import '../../domain/entities/mood_entry_entity.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -18,7 +21,9 @@ class AddEntryPage extends StatefulWidget {
 class _AddEntryPageState extends State<AddEntryPage> {
   String? _selectedMoodId;
   final List<String> _selectedActivities = [];
+  final List<String> _imagePaths = [];
   late TextEditingController _noteController;
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -26,8 +31,28 @@ class _AddEntryPageState extends State<AddEntryPage> {
     _selectedMoodId = widget.existingEntry?.moodId;
     if (widget.existingEntry != null) {
       _selectedActivities.addAll(widget.existingEntry!.activities);
+      _imagePaths.addAll(widget.existingEntry!.imageUrls);
     }
     _noteController = TextEditingController(text: widget.existingEntry?.note);
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(source: source);
+      if (image != null) {
+        setState(() {
+          _imagePaths.add(image.path);
+        });
+      }
+    } catch (e) {
+      // Handle error if needed
+    }
+  }
+
+  void _removeImage(int index) {
+    setState(() {
+      _imagePaths.removeAt(index);
+    });
   }
 
   @override
@@ -126,20 +151,70 @@ class _AddEntryPageState extends State<AddEntryPage> {
                         // Photo
                         const Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 16),
-                        if (widget.existingEntry != null && widget.existingEntry!.imageUrls.isNotEmpty) ...[
+                        if (_imagePaths.isNotEmpty) ...[
                           SizedBox(
-                            height: 100,
-                            child: ListView.separated(
+                            height: 110,
+                            child: ListView.builder(
                               scrollDirection: Axis.horizontal,
-                              itemCount: widget.existingEntry!.imageUrls.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 8),
-                              itemBuilder: (context, imgIndex) {
-                                return ClipRRect(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Image.network(
-                                    widget.existingEntry!.imageUrls[imgIndex],
-                                    width: 150,
-                                    fit: BoxFit.cover,
+                              itemCount: _imagePaths.length,
+                              itemBuilder: (context, index) {
+                                final path = _imagePaths[index];
+                                final isNetwork = path.startsWith('http');
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 12, top: 8),
+                                  child: Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => Navigator.of(context).push(
+                                          MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: path)),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(16),
+                                          child: isNetwork 
+                                            ? Image.network(
+                                                path,
+                                                width: 150,
+                                                height: 100,
+                                                fit: BoxFit.contain,
+                                                errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
+                                              )
+                                            : Image.file(
+                                                File(path),
+                                                width: 150,
+                                                height: 100,
+                                                fit: BoxFit.contain,
+                                                errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
+                                              ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -8,
+                                        right: -8,
+                                        child: GestureDetector(
+                                          onTap: () => _removeImage(index),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(4),
+                                            decoration: const BoxDecoration(
+                                              color: AppColors.primary,
+                                              shape: BoxShape.circle,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black26,
+                                                  blurRadius: 4,
+                                                  offset: Offset(0, 2),
+                                                ),
+                                              ],
+                                            ),
+                                            child: const Icon(
+                                              Icons.close,
+                                              size: 16,
+                                              color: Colors.black,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
@@ -149,9 +224,21 @@ class _AddEntryPageState extends State<AddEntryPage> {
                         ],
                         Row(
                           children: [
-                            Expanded(child: _PhotoBtn(icon: Icons.photo_camera, label: "Take a photo")),
+                            Expanded(
+                              child: _PhotoBtn(
+                                icon: Icons.photo_camera, 
+                                label: "Take a photo",
+                                onTap: () => _pickImage(ImageSource.camera),
+                              ),
+                            ),
                             const SizedBox(width: 12),
-                            Expanded(child: _PhotoBtn(icon: Icons.image, label: "From gallery")),
+                            Expanded(
+                              child: _PhotoBtn(
+                                icon: Icons.image, 
+                                label: "From gallery",
+                                onTap: () => _pickImage(ImageSource.gallery),
+                              ),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 100),
@@ -179,7 +266,7 @@ class _AddEntryPageState extends State<AddEntryPage> {
                       time: widget.existingEntry?.time ?? DateFormat('HH:mm').format(now),
                       note: _noteController.text,
                       activities: List.from(_selectedActivities),
-                      imageUrls: widget.existingEntry?.imageUrls ?? [],
+                      imageUrls: List.from(_imagePaths),
                       createdAt: widget.existingEntry?.createdAt ?? now,
                     );
                     if (widget.existingEntry != null) {
@@ -321,21 +408,25 @@ class _ActivitiesGrid extends StatelessWidget {
 class _PhotoBtn extends StatelessWidget {
   final IconData icon;
   final String label;
+  final VoidCallback onTap;
 
-  const _PhotoBtn({required this.icon, required this.label});
+  const _PhotoBtn({required this.icon, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return GlassCard(
-      borderRadius: 12,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 20, color: AppColors.onSurfaceVariant),
-          const SizedBox(width: 8),
-          Text(label, style: const TextStyle(fontSize: 14)),
-        ],
+    return GestureDetector(
+      onTap: onTap,
+      child: GlassCard(
+        borderRadius: 12,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20, color: AppColors.onSurfaceVariant),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(fontSize: 14)),
+          ],
+        ),
       ),
     );
   }
@@ -375,4 +466,14 @@ class _SaveBtn extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildErrorPlaceholder(double width) {
+  return Container(
+    width: width,
+    color: AppColors.surfaceVariant.withOpacity(0.1),
+    child: const Center(
+      child: Icon(Icons.broken_image_outlined, color: AppColors.outline, size: 24),
+    ),
+  );
 }

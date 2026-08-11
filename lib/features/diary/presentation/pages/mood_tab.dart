@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'full_screen_image_page.dart';
 import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../widgets/glass_card.dart';
@@ -251,12 +253,27 @@ class MoodEntryCard extends StatelessWidget {
                       itemCount: entry.imageUrls.length,
                       separatorBuilder: (_, __) => const SizedBox(width: 8),
                       itemBuilder: (context, imgIndex) {
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: Image.network(
-                            entry.imageUrls[imgIndex],
-                            width: 120,
-                            fit: BoxFit.cover,
+                        final imageUrl = entry.imageUrls[imgIndex];
+                        final isNetwork = imageUrl.startsWith('http');
+                        return GestureDetector(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: imageUrl)),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: isNetwork 
+                              ? Image.network(
+                                  imageUrl,
+                                  width: 120,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                                )
+                              : Image.file(
+                                  File(imageUrl),
+                                  width: 120,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                                ),
                           ),
                         );
                       },
@@ -310,5 +327,13 @@ class MoodEntryCard extends StatelessWidget {
       case "Shop": return Icons.shopping_basket;
       default: return Icons.more_horiz;
     }
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return Container(
+      width: 120,
+      color: AppColors.surfaceVariant,
+      child: const Icon(Icons.broken_image_outlined, color: AppColors.outline, size: 24),
+    );
   }
 }

@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'full_screen_image_page.dart';
 import '../cubit/diary_cubit.dart';
 import '../cubit/diary_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -82,20 +84,38 @@ class PhotoGalleryPage extends StatelessWidget {
                             ),
                             itemCount: entry.imageUrls.length,
                             itemBuilder: (context, gridIndex) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(16),
-                                child: Image.network(
-                                  entry.imageUrls[gridIndex],
-                                  fit: BoxFit.cover,
-                                  loadingBuilder: (context, child, loadingProgress) {
-                                    if (loadingProgress == null) return child;
-                                    return Container(
-                                      color: AppColors.surfaceVariant,
-                                      child: const Center(
-                                        child: CircularProgressIndicator(strokeWidth: 2),
-                                      ),
-                                    );
-                                  },
+                              final imageUrl = entry.imageUrls[gridIndex];
+                              final isNetwork = imageUrl.startsWith('http');
+                              
+                              return GestureDetector(
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: imageUrl)),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Container(
+                                    color: AppColors.surfaceVariant.withOpacity(0.1),
+                                    child: isNetwork 
+                                      ? Image.network(
+                                          imageUrl,
+                                          fit: BoxFit.contain,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return Container(
+                                              color: AppColors.surfaceVariant,
+                                              child: const Center(
+                                                child: CircularProgressIndicator(strokeWidth: 2),
+                                              ),
+                                            );
+                                          },
+                                          errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                                        )
+                                      : Image.file(
+                                          File(imageUrl),
+                                          fit: BoxFit.contain,
+                                          errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(),
+                                        ),
+                                  ),
                                 ),
                               );
                             },
@@ -133,6 +153,12 @@ class PhotoGalleryPage extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildErrorPlaceholder() {
+    return const Center(
+      child: Icon(Icons.cloud_off_outlined, color: AppColors.outline, size: 24),
     );
   }
 }
