@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'dashboard_page.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/pages/login_page.dart';
+import '../../../auth/presentation/pages/register_page.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -118,32 +122,48 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 48),
-                          // Button
+                          // Buttons
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pushReplacement(
-                                    MaterialPageRoute(builder: (_) => const DashboardPage()),
-                                  );
-                                },
-                                style: ElevatedButton.styleFrom(
+                            child: Column(
+                              children: [
+                                // Guest
+                                _AuthButton(
+                                  label: "Continue without account",
+                                  icon: Icons.person_outline,
+                                  onPressed: () {
+                                    context.read<AuthCubit>().continueAsGuest();
+                                  },
                                   backgroundColor: AppColors.primary,
-                                  foregroundColor: AppColors.onPrimary,
-                                  shape: RoundedCornerShape(12),
+                                  foregroundColor: Colors.black,
                                 ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text("Get Started", style: TextStyle(fontWeight: FontWeight.bold)),
-                                    SizedBox(width: 8),
-                                    Icon(Icons.arrow_forward, size: 20),
-                                  ],
+                                const SizedBox(height: 12),
+                                // Login
+                                _AuthButton(
+                                  label: "Sign In",
+                                  icon: Icons.login,
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                                    );
+                                  },
+                                  backgroundColor: AppColors.surfaceVariant,
+                                  foregroundColor: Colors.white,
                                 ),
-                              ),
+                                const SizedBox(height: 12),
+                                // Register
+                                _AuthButton(
+                                  label: "Register",
+                                  icon: Icons.person_add_outlined,
+                                  onPressed: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(builder: (_) => const RegisterPage()),
+                                    );
+                                  },
+                                  backgroundColor: AppColors.surfaceVariant.withOpacity(0.5),
+                                  foregroundColor: Colors.white70,
+                                ),
+                              ],
                             ),
                           ),
                           const Spacer(flex: 1),
@@ -179,6 +199,47 @@ class OnboardingPage extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AuthButton extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color foregroundColor;
+
+  const _AuthButton({
+    required this.label,
+    required this.icon,
+    required this.onPressed,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: foregroundColor,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 20),
+            const SizedBox(width: 12),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          ],
+        ),
       ),
     );
   }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../cubit/diary_cubit.dart';
 import 'mood_tab.dart';
 import 'journal_tab.dart';
 import 'profile_tab.dart';
@@ -16,6 +18,12 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   int _currentIndex = 0;
   bool _isRemindersEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<DiaryCubit>().loadEntries();
+  }
 
   final List<String> _tabs = ["mood", "stats", "journal", "profile"];
 

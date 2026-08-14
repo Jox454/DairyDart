@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
+/*lngqlsljhskleebmlt@vtmpj.net*/
 @PreviewScreenSizes
 @Composable
 fun AppApp() {

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../widgets/glass_card.dart';
 import 'photo_gallery_page.dart';
 import 'achievements_page.dart';
@@ -65,9 +68,9 @@ class ProfileTab extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        const Text(
-          "Alex Johnson",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+        Text(
+          Supabase.instance.client.auth.currentUser?.email ?? "Guest User",
+          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         const Text(
           "Inner Peace Seeker",
@@ -124,6 +127,15 @@ class ProfileTab extends StatelessWidget {
           "Edit Moods", 
           iconColor: Colors.blue,
           onTap: onMoodTabRequested,
+        ),
+        const SizedBox(height: 12),
+        _buildItem(
+          Icons.logout, 
+          "Logout", 
+          iconColor: Colors.redAccent,
+          onTap: () {
+            context.read<AuthCubit>().signOut();
+          },
         ),
       ],
     );
