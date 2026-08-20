@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthState;
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_state.dart';
 
@@ -26,6 +27,12 @@ class AuthCubit extends Cubit<AuthState> {
       } else {
         emit(Unauthenticated());
       }
+    } on AuthException catch (e) {
+      if (e.message.contains('Invalid login credentials')) {
+        emit(const AuthError("No account found with this email or incorrect password."));
+      } else {
+        emit(AuthError(e.message));
+      }
     } catch (e) {
       emit(AuthError(e.toString()));
     }
@@ -35,14 +42,17 @@ class AuthCubit extends Cubit<AuthState> {
     emit(AuthLoading());
     try {
       await _authRepository.signUp(email: email, password: password);
-      // Supabase usually sends confirmation email, but if disabled, it signs in automatically or needs signIn call.
-      // Assuming auto-confirm or just waiting for them to sign in.
-      // If confirm is off, session is usually active.
       final userId = _authRepository.currentUserId;
       if (userId != null) {
         emit(Authenticated(userId));
       } else {
-        emit(const AuthError("Registration successful. Please sign in."));
+        emit(const AuthError("Registration successful. Please check your email for confirmation."));
+      }
+    } on AuthException catch (e) {
+      if (e.message.contains('User already registered')) {
+        emit(const AuthError("An account with this email already exists."));
+      } else {
+        emit(AuthError(e.message));
       }
     } catch (e) {
       emit(AuthError(e.toString()));

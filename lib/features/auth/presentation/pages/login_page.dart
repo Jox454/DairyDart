@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/auth_cubit.dart';
 import '../cubit/auth_state.dart';
@@ -91,11 +92,16 @@ class _LoginPageState extends State<LoginPage> {
                             child: TextFormField(
                               controller: _emailController,
                               style: const TextStyle(color: Colors.white),
+                              maxLength: 25,
+                              maxLengthEnforcement: MaxLengthEnforcement.enforced,
                               decoration: const InputDecoration(
                                 hintText: "your@email.com",
+                                helperText: "Max 25 characters",
+                                helperStyle: TextStyle(color: AppColors.outline, fontSize: 10),
                                 hintStyle: TextStyle(color: AppColors.outline),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.all(16),
+                                counterText: "",
                               ),
                               validator: _validateEmail,
                             ),
@@ -111,11 +117,19 @@ class _LoginPageState extends State<LoginPage> {
                               controller: _passwordController,
                               obscureText: true,
                               style: const TextStyle(color: Colors.white),
+                              maxLength: 12,
+                              maxLengthEnforcement: MaxLengthEnforcement.enforced,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                              ],
                               decoration: const InputDecoration(
                                 hintText: "••••••••",
                                 hintStyle: TextStyle(color: AppColors.outline),
+                                helperText: "Letters and numbers only (max 12)",
+                                helperStyle: TextStyle(color: AppColors.outline, fontSize: 10),
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.all(16),
+                                counterText: "",
                               ),
                               validator: (v) => (v == null || v.isEmpty) ? 'Please enter your password' : null,
                             ),
