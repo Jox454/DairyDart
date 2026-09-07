@@ -91,158 +91,163 @@ class _AddEntryPageState extends State<AddEntryPage> {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Mood Section
-                        Center(
-                          child: Column(
-                            children: [
-                              Text(
-                                "How do you feel?",
-                                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Mood Section
+                            Center(
+                              child: Column(
+                                children: [
+                                  Text(
+                                    "How do you feel?",
+                                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _MoodSelector(
+                                    selectedId: _selectedMoodId,
+                                    onSelect: (id) => setState(() => _selectedMoodId = id),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Activities
+                            const Text("Activities", style: TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 16),
+                            _ActivitiesGrid(
+                              selectedList: _selectedActivities,
+                              onToggle: (label) {
+                                setState(() {
+                                  if (_selectedActivities.contains(label)) {
+                                    _selectedActivities.remove(label);
+                                  } else {
+                                    _selectedActivities.add(label);
+                                  }
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 32),
+                            // Note
+                            const Text("Note", style: TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 16),
+                            GlassCard(
+                              borderRadius: 16,
+                              padding: EdgeInsets.zero,
+                              child: TextField(
+                                controller: _noteController,
+                                maxLines: 3,
+                                decoration: const InputDecoration(
+                                  hintText: "Add a note...",
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.all(16),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            // Photo
+                            const Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 16),
+                            if (_imagePaths.isNotEmpty) ...[
+                              SizedBox(
+                                height: 110,
+                                child: ListView.builder(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: _imagePaths.length,
+                                  itemBuilder: (context, index) {
+                                    final path = _imagePaths[index];
+                                    final isNetwork = path.startsWith('http');
+                                    return Padding(
+                                      padding: const EdgeInsets.only(right: 12, top: 8),
+                                      child: Stack(
+                                        clipBehavior: Clip.none,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () => Navigator.of(context).push(
+                                              MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: path)),
+                                            ),
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(16),
+                                              child: isNetwork 
+                                                ? Image.network(
+                                                    path,
+                                                    width: 150,
+                                                    height: 100,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
+                                                  )
+                                                : Image.file(
+                                                    File(path),
+                                                    width: 150,
+                                                    height: 100,
+                                                    fit: BoxFit.contain,
+                                                    errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
+                                                  ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: -8,
+                                            right: -8,
+                                            child: GestureDetector(
+                                              onTap: () => _removeImage(index),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(4),
+                                                decoration: const BoxDecoration(
+                                                  color: AppColors.primary,
+                                                  shape: BoxShape.circle,
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.black26,
+                                                      blurRadius: 4,
+                                                      offset: Offset(0, 2),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: const Icon(
+                                                  Icons.close,
+                                                  size: 16,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              _MoodSelector(
-                                selectedId: _selectedMoodId,
-                                onSelect: (id) => setState(() => _selectedMoodId = id),
-                              ),
                             ],
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Activities
-                        const Text("Activities", style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 16),
-                        _ActivitiesGrid(
-                          selectedList: _selectedActivities,
-                          onToggle: (label) {
-                            setState(() {
-                              if (_selectedActivities.contains(label)) {
-                                _selectedActivities.remove(label);
-                              } else {
-                                _selectedActivities.add(label);
-                              }
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 32),
-                        // Note
-                        const Text("Note", style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 16),
-                        GlassCard(
-                          borderRadius: 16,
-                          padding: EdgeInsets.zero,
-                          child: TextField(
-                            controller: _noteController,
-                            maxLines: 3,
-                            decoration: const InputDecoration(
-                              hintText: "Add a note...",
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(16),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Photo
-                        const Text("Photo", style: TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(height: 16),
-                        if (_imagePaths.isNotEmpty) ...[
-                          SizedBox(
-                            height: 110,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _imagePaths.length,
-                              itemBuilder: (context, index) {
-                                final path = _imagePaths[index];
-                                final isNetwork = path.startsWith('http');
-                                return Padding(
-                                  padding: const EdgeInsets.only(right: 12, top: 8),
-                                  child: Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      GestureDetector(
-                                        onTap: () => Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => FullScreenImagePage(imageUrl: path)),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(16),
-                                          child: isNetwork 
-                                            ? Image.network(
-                                                path,
-                                                width: 150,
-                                                height: 100,
-                                                fit: BoxFit.contain,
-                                                errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
-                                              )
-                                            : Image.file(
-                                                File(path),
-                                                width: 150,
-                                                height: 100,
-                                                fit: BoxFit.contain,
-                                                errorBuilder: (context, error, stackTrace) => _buildErrorPlaceholder(150),
-                                              ),
-                                        ),
-                                      ),
-                                      Positioned(
-                                        top: -8,
-                                        right: -8,
-                                        child: GestureDetector(
-                                          onTap: () => _removeImage(index),
-                                          child: Container(
-                                            padding: const EdgeInsets.all(4),
-                                            decoration: const BoxDecoration(
-                                              color: AppColors.primary,
-                                              shape: BoxShape.circle,
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black26,
-                                                  blurRadius: 4,
-                                                  offset: Offset(0, 2),
-                                                ),
-                                              ],
-                                            ),
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 16,
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _PhotoBtn(
+                                    icon: Icons.photo_camera, 
+                                    label: "Take a photo",
+                                    onTap: () => _pickImage(ImageSource.camera),
                                   ),
-                                );
-                              },
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: _PhotoBtn(
+                                    icon: Icons.image, 
+                                    label: "From gallery",
+                                    onTap: () => _pickImage(ImageSource.gallery),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _PhotoBtn(
-                                icon: Icons.photo_camera, 
-                                label: "Take a photo",
-                                onTap: () => _pickImage(ImageSource.camera),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: _PhotoBtn(
-                                icon: Icons.image, 
-                                label: "From gallery",
-                                onTap: () => _pickImage(ImageSource.gallery),
-                              ),
-                            ),
+                            const SizedBox(height: 100),
                           ],
                         ),
-                        const SizedBox(height: 100),
-                      ],
+                      ),
                     ),
                   ),
                 ),

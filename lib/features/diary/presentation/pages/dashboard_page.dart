@@ -29,55 +29,95 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBody: true,
-      body: Stack(
-        children: [
-          // Background Gradients
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.primary.withOpacity(0.1),
-              ),
-            ),
-          ),
-          SafeArea(
-            bottom: false,
-            child: Column(
-              children: [
-                // Shared Top Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Icon(Icons.calendar_month, color: AppColors.primary),
-                      Text(
-                        "MindDiary",
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final bool isTablet = constraints.maxWidth > 800;
+
+        return Scaffold(
+          extendBody: true,
+          body: Row(
+            children: [
+              if (isTablet)
+                _buildNavigationRail(),
+              Expanded(
+                child: Stack(
+                  children: [
+                    // Background Gradients
+                    Positioned(
+                      top: -100,
+                      right: -100,
+                      child: Container(
+                        width: 300,
+                        height: 300,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary.withOpacity(0.1),
                         ),
                       ),
-                      const Icon(Icons.settings, color: AppColors.primary),
-                    ],
-                  ),
+                    ),
+                    SafeArea(
+                      bottom: false,
+                      child: Column(
+                        children: [
+                          // Shared Top Bar
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Icon(Icons.calendar_month, color: AppColors.primary),
+                                Text(
+                                  "MindDiary",
+                                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Icon(Icons.settings, color: AppColors.primary),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: const BoxConstraints(maxWidth: 800),
+                                child: _buildCurrentTab(_tabs[_currentIndex]),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: _buildCurrentTab(_tabs[_currentIndex]),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
-      bottomNavigationBar: _buildBottomBar(),
-      floatingActionButton: _buildFAB(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+          bottomNavigationBar: isTablet ? null : _buildBottomBar(),
+          floatingActionButton: _buildFAB(isTablet),
+          floatingActionButtonLocation: isTablet 
+            ? FloatingActionButtonLocation.endFloat 
+            : FloatingActionButtonLocation.centerDocked,
+        );
+      },
+    );
+  }
+
+  Widget _buildNavigationRail() {
+    return NavigationRail(
+      backgroundColor: AppColors.surfaceContainer.withOpacity(0.95),
+      selectedIndex: _currentIndex,
+      onDestinationSelected: (index) => setState(() => _currentIndex = index),
+      labelType: NavigationRailLabelType.all,
+      selectedLabelTextStyle: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold),
+      unselectedLabelTextStyle: const TextStyle(color: AppColors.onSurfaceVariant),
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme: const IconThemeData(color: AppColors.onSurfaceVariant),
+      destinations: const [
+        NavigationRailDestination(icon: Icon(Icons.mood), label: Text("Mood")),
+        NavigationRailDestination(icon: Icon(Icons.bar_chart), label: Text("Stats")),
+        NavigationRailDestination(icon: Icon(Icons.edit_note), label: Text("Journal")),
+        NavigationRailDestination(icon: Icon(Icons.person), label: Text("Profile")),
+      ],
     );
   }
 
@@ -151,9 +191,9 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  Widget _buildFAB() {
+  Widget _buildFAB(bool isTablet) {
     return Padding(
-      padding: const EdgeInsets.only(top: 30), // Adjust alignment manually
+      padding: EdgeInsets.only(top: isTablet ? 0 : 30), // Adjust alignment manually
       child: SizedBox(
         width: 64,
         height: 64,

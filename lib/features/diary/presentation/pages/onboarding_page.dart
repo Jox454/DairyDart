@@ -34,6 +34,85 @@ class OnboardingPage extends StatelessWidget {
           SafeArea(
             child: LayoutBuilder(
               builder: (context, constraints) {
+                final bool isTablet = constraints.maxWidth > 800;
+                
+                if (isTablet) {
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Row(
+                        children: [
+                          // Left side: Illustration
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.all(40),
+                              child: AspectRatio(
+                                aspectRatio: 1,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(32),
+                                  child: Image.asset(
+                                    'assets/images/onboarding_photo.jpg',
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) => Container(
+                                      color: AppColors.surfaceVariant.withOpacity(0.3),
+                                      child: const Center(child: Text("Illustration Placeholder")),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          // Right side: Text and Buttons
+                          Expanded(
+                            flex: 1,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 60),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "MindDiary",
+                                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 40),
+                                  RichText(
+                                    textAlign: TextAlign.start,
+                                    text: TextSpan(
+                                      style: Theme.of(context).textTheme.displayMedium?.copyWith(height: 1.2),
+                                      children: [
+                                        const TextSpan(text: "Express your mood \n"),
+                                        const TextSpan(
+                                          text: "with emojis",
+                                          style: TextStyle(color: AppColors.primary),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    "Record your moods and experiences using the language of emojis, without the need to write anything. Uncover patterns and cherish every moment.",
+                                    textAlign: TextAlign.start,
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: AppColors.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 60),
+                                  _buildButtons(context),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
                 return SingleChildScrollView(
                   child: ConstrainedBox(
                     constraints: BoxConstraints(minHeight: constraints.maxHeight),
@@ -122,50 +201,7 @@ class OnboardingPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 48),
-                          // Buttons
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Column(
-                              children: [
-                                // Guest
-                                _AuthButton(
-                                  label: "Continue without account",
-                                  icon: Icons.person_outline,
-                                  onPressed: () {
-                                    context.read<AuthCubit>().continueAsGuest();
-                                  },
-                                  backgroundColor: AppColors.primary,
-                                  foregroundColor: Colors.black,
-                                ),
-                                const SizedBox(height: 12),
-                                // Login
-                                _AuthButton(
-                                  label: "Sign In",
-                                  icon: Icons.login,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                                    );
-                                  },
-                                  backgroundColor: AppColors.surfaceVariant,
-                                  foregroundColor: Colors.white,
-                                ),
-                                const SizedBox(height: 12),
-                                // Register
-                                _AuthButton(
-                                  label: "Register",
-                                  icon: Icons.person_add_outlined,
-                                  onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (_) => const RegisterPage()),
-                                    );
-                                  },
-                                  backgroundColor: AppColors.surfaceVariant.withOpacity(0.5),
-                                  foregroundColor: Colors.white70,
-                                ),
-                              ],
-                            ),
-                          ),
+                          _buildButtons(context),
                           const Spacer(flex: 1),
                           // Footer
                           const Padding(
@@ -197,6 +233,53 @@ class OnboardingPage extends StatelessWidget {
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildButtons(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Guest
+          _AuthButton(
+            label: "Continue without account",
+            icon: Icons.person_outline,
+            onPressed: () {
+              context.read<AuthCubit>().continueAsGuest();
+            },
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.black,
+          ),
+          const SizedBox(height: 12),
+          // Login
+          _AuthButton(
+            label: "Sign In",
+            icon: Icons.login,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            },
+            backgroundColor: AppColors.surfaceVariant,
+            foregroundColor: Colors.white,
+          ),
+          const SizedBox(height: 12),
+          // Register
+          _AuthButton(
+            label: "Register",
+            icon: Icons.person_add_outlined,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const RegisterPage()),
+              );
+            },
+            backgroundColor: AppColors.surfaceVariant.withOpacity(0.5),
+            foregroundColor: Colors.white70,
           ),
         ],
       ),
